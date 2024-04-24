@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    canvas {
+
+        width: 100% !important;
+        height: 500px !important;
+
+    }
+</style>
+
+<div class="container mt-3">
+    <form action="{% url 'DataTransformation' %}" method="post" class="form" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="formFile" class="form-label">Upload your file :</label>
+            <input class="form-control" name="inputFile" type="file" id="formFile">
+        </div>
+        <div>
+            <button class="btn btn-outline-success" type="submit">Submit</button>
+            <button class="btn btn-outline-warning ms-2" type="submit" formaction="{% url 'downloadExcel' %}">Download
+                Data</button>
+            <i class="bi bi-info-circle-fill ms-2"></i><label class="ms-2">Click to download data</label>
+        </div>
+    </form>
+</div>
+
+<canvas id="myChart" class="mt-5 mb-5"></canvas>
+
+{% endblock content %}
+
+{% block script %}
+<script>
+    
+    $( document ).ready(function() {
+        let labels, dataset;
+
+        $.ajax({
+            url: 'dashboard/',
+            method: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                
+                console.log("=======Data========", data);
+                labels = data["labels"]
+                dataset = data["dataset"]
+            }
+        });
+
+        setTimeout(function () {
+            console.log(dataset)
+            const myChart = new Chart("myChart", {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: dataset
+                },
+                options: {
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Chart.js Bar Chart - Stacked'
+                        },
+                    },
+                    responsive: true,
+                    interaction: {
+                        intersect: false,
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            maxRotation: 90,
+                            minRotation: 90
+                        },
+                        y: {
+                            stacked: true
+                        }
+                    }
+                }
+            });
+        }, 500);
+    });
+    
+</script>
+{% endblock script %}
